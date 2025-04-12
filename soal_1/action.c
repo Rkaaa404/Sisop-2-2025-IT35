@@ -152,7 +152,6 @@ void combine_files() {
   }
 
   fclose(combined);
-  printf("Test");
 }
 void rot13(char *str) {
   for (int i = 0; str[i]; i++) {
@@ -212,10 +211,13 @@ int main(int argc, char **argv){
   if ( argc == 3 && strcmp(argv[1], "-m") == 0) {
     if (strcmp(argv[2], "Filter") == 0){
       filter_files();
+      printf("Files filtering completed");
     } else if (strcmp(argv[2], "Combine") == 0){
       combine_files();
+      printf("Files combined successfully");
     } else if (strcmp(argv[2], "Decode") == 0){
       decode_file();
+      printf("File decoded successfully");
     } else {
       print_commands();
     }
