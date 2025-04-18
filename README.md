@@ -34,7 +34,7 @@
   f. Mencatat ke dalam file log  
 
 ### Nomor 1 (Rayka)
-#### Downloading the Clues
+### Downloading the Clues
 Melakukan wget, unzip dan rm zip file ketika files Clue belum ada:
 Hal ini dapat dilakukan dengan menyimpan kode bash dalam variable char:
 ```c
@@ -77,7 +77,7 @@ struct stat st = {0};
 Dimana akan melakukan pencarian "Clues" di directory sekarang, dengan syarat kedua "Clues" berupa directory atau folder, dimana jika hal ini tidak terpenuhi program bash akan tereksekusi. Berikut contoh hasil eksekusi pertama kali program (belum ada dir Clues):  
 ![Output Inisialisasi](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/OutputInit%20(1).jpeg)   
 
-#### Filtering the Files
+### Filtering the Files
 Melakukan filtering, mengambil files yang memiliki format: [a-z].txt atau [1-9].txt dan memindahkannya ke dir Filtered, sementara file lain akan dihapus, menyisakan dir kosong. Pertama, kita melakukan persipan seperti membuat dir "Filtered", membuka dir "Clues", serta mendapatkan _current working directory_(cwd):
 ```c
 // membuat directory Filtered
@@ -130,8 +130,8 @@ Jika data adalah file reguler, maka kita akan melakukan penegcekan dimana di sin
 <br>
 Hasil Output:   
 ![Output Filtering](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/OutputFilter%20(1).jpeg)   
-
-#### Combine the File Content  
+![Tree Filter](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/treeFilter.png)
+### Combine the File Content  
 Menggabungkan isi dari files di dir "Filtered" menjadi satu txt file dengan urutan penggabungan angka huruf angka huruf.  
 Pertama tama kita siapkan fungsi untuk komparasi pada qsort nanti:
 ```c
@@ -209,6 +209,7 @@ __Part 3:__
       free(digits[dcounter]);
       dcounter++;
       state = 1;
+      remove(path);
     } else if (state == 1 && lcounter < lcount) {
       char path[1024];
       snprintf(path, sizeof(path), "./Filtered/%s", letters[lcounter]);
@@ -223,17 +224,18 @@ __Part 3:__
       free(letters[lcounter]);
       lcounter++;
       state = 0;
+      remove(path);
     }
   }
   fclose(combined)
 }
 ```
-Melakukan while loop dimana selama dcounter (penghitung iterasi digit) kurang dari jumlah total digit, yang sama juga berlaku pada letters, maka program akan terus tereksekusi. Dimana dikarenakan diperlukannya bergantian angka dan huruf, dibuatlah variable state, dimana saat state bernilai 0 akan membaca dan mencatat isi file angka dan mengubah nilai state ke 1, sehingga pada iterasi berikutnya dilakukan pembacaan dan pencatatan isi file huruf. Setelah hal tersebut selesai, program akan menghasilkan output berupa _Combined.txt_.  
+Melakukan while loop dimana selama dcounter (penghitung iterasi digit) kurang dari jumlah total digit, yang sama juga berlaku pada letters, maka program akan terus tereksekusi. Dimana dikarenakan diperlukannya bergantian angka dan huruf, dibuatlah variable state, dimana saat state bernilai 0 akan membaca dan mencatat isi file angka dan mengubah nilai state ke 1, sehingga pada iterasi berikutnya dilakukan pembacaan dan pencatatan isi file huruf. Saat suatu file telah dibaca dan dimasukkan contentnya ke _Combined.txt_ maka otomatis file tersebut di remove. Setelah hal tersebut selesai, program akan menghasilkan output berupa _Combined.txt_.  
 
 Hasil Output:   
 ![Output Combine](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/OutputCombine%20(1).jpeg)   
-
-#### Decode the file
+![Tree Combine](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/treeCombine.png)
+### Decode the file
 Melakukan decode dari ROT-13 dari Completed.txt, maka dari itu kita persiapkan function decode ROT-13, yang dimana ROT-13 sendiri merupakan enkripsi yang menggeser huruf sebanyak 13 huruf ke depannya seperti misalnya: "a" dilakukan ROT-13 maka akan menjadi "n", hal ini berlaku ke huruf huruf selanjutnya. Maka didapatkan kode program:  
 ```c
 void rot13(char *str) {
@@ -277,12 +279,12 @@ Jadi, saat membaca isi file combined (fgets), buffer yang berisikan isi contents
 
 Hasil Output:   
 ![Output Decode](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/OutputDecode%20(1).jpeg)   
-
-#### Password Check
+![Tree Decode](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/treeDecode.png)
+### Password Check
 Setelah measukkan kode ke dalam website, akan membuka tampilan baru seperti ini:
 ![Login Website](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/PasswordLogin%20(1).jpeg)   
 
-#### Error handling (salah commands):  
+### Error handling (salah commands):  
 Membuat error handlings list command yang benar dengan menggunakan fungsi yang dipanggil jika tidak memenuhi semua conditional statement:
 ```c
 // fungsi
@@ -529,3 +531,143 @@ pid_t rodok_pid = fork();
 ```
 
 ### Nomor 4 (Rayka)
+### Mencatat ke dalam file log:
+```c
+void log_process(const char* process_name, const char* status) {
+    FILE* log = fopen("debugmon.log", "a");
+    if (!log) {
+        perror("Failed to open debugmon.log");
+        return;
+    }
+
+    time_t now = time(NULL);
+    struct tm* t = localtime(&now);
+
+    fprintf(log, "[%02d:%02d:%04d]-%02d:%02d:%02d_%s_%s\n",
+        t->tm_mday, t->tm_mon + 1, t->tm_year + 1900,
+        t->tm_hour, t->tm_min, t->tm_sec,
+        process_name, status);
+
+    fclose(log);
+}
+```
+Membuka file debugmon.log dengan metode append yaitu jika belum ada maka akan dibuat, dan jika sudah ada isinya, akan ditambah (append) isinya   
+
+**Contoh isi:**  
+![log file contents](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/logfile.png)  
+
+### Mengetahui semua aktivitas user:
+Dengan melakukan "./debugmon list <user>" bisa melihat semua aktivitas user, hal ini bisa dicapai dengan menggunakan ps -u <user>, dimana jika ditulis dalam fungsi c:
+```c
+void show_process(const char* user) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        execlp("ps", "ps", "-u", user, "-o", "pid,user,comm,%cpu,%mem", NULL);
+        perror("execlp failed");
+        exit(1);
+    } else if (pid > 0) {
+        wait(NULL);
+    } else {
+        perror("fork failed");
+    }
+}
+```
+**Output Code:**  
+![Output ps](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/outputList(4).png)  
+
+### Memasang mata-mata dalam mode daemon
+Dengan melakukan "./debugmon daemon <user>", menjalankan program ini secara daemon dan melakukan pencatatan ke dalam file log. Dimana dapat ditulis dalam fungsi c:
+```c
+void daemon_mode(const char* user) {
+    pid_t pid = fork();
+    if (pid < 0) exit(1);
+    if (pid > 0) exit(0); 
+
+    setsid(); 
+    signal(SIGHUP, SIG_IGN);
+    pid = fork();
+    if (pid < 0) exit(1);
+    if (pid > 0) exit(0); 
+
+    chdir("/");
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    while (1) {
+        char command[256], buffer[256];
+        snprintf(command, sizeof(command), "ps -u %s -o comm=", user);
+        FILE* fp = popen(command, "r");
+        if (fp) {
+            while (fgets(buffer, sizeof(buffer), fp)) {
+                buffer[strcspn(buffer, "\n")] = '\0';
+                log_process(buffer, "RUNNING");
+            }
+            pclose(fp);
+        }
+        sleep(10); 
+    }
+}
+```
+Dimana dalam daemonize akan melakukan pemindahan directory kerja mnejadi "/" atau root lalu akan melaksanakan infinity loop proses ps -u <user>, dan mencatat process tersebut ke dalam file log.   
+**Output Code:**   
+![output daemonize](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/outputDaemon(4).png)
+### Menghentikan pengawasan:   
+```c
+void stop_daemon(const char* user) {
+    char command[256];
+    snprintf(command, sizeof(command), "pkill -f 'debugmon daemon %s'", user);
+    system(command);
+}
+```
+**Output Code:**  
+![output stop](https://github.com/Rkaaa404/Sisop-2-2025-IT35/blob/main/assets/outputStop(4).png)   
+
+### Menggagalkan semua proses user yang sedang berjalan:   
+```c
+void fail_user(const char* user) {
+    char command[256], buffer[256];
+    snprintf(command, sizeof(command), "ps -u %s -o pid=,comm=", user);
+
+    FILE* fp = popen(command, "r");
+    if (!fp) {
+        perror("popen fail");
+        return;
+    }
+
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        int pid;
+        char proc[128];
+        sscanf(buffer, "%d %s", &pid, proc);
+        kill(pid, SIGKILL);
+        log_process(proc, "FAILED");
+    }
+
+    pclose(fp);
+
+    FILE* lock = fopen("debugmon.lock", "w");
+    if (lock) {
+        fprintf(lock, "%s\n", user);
+        fclose(lock);
+    }
+}
+```
+Pada bagian awal, melakukan ps -u <user> dan mengambil pid serta commandnya, dimana process user tersebut lalu dibaca, dikill, dan disimpan sebagai FAILED di file log. Nama user lalu disimpan di file debugmon.lock (hal ini akan digunakan untuk penyocokan di fungsi revert)   
+
+### Mengizinkan user untuk kembali menjalankan proses   
+```c
+void revert_user(const char* user) {
+    FILE* lock = fopen("debugmon.lock", "r");
+    if (lock) {
+        char buf[128];
+        fgets(buf, sizeof(buf), lock);
+        fclose(lock);
+
+        if (strncmp(buf, user, strlen(user)) == 0) {
+            remove("debugmon.lock");
+            log_process("debugmon", "RUNNING");
+        }
+    }
+}
+```
+Melakukan pengecekkan apakah user yang disebut merupakan yang sebelumnya dilock (ditulis dalam debugmon.lock), jika memang user sebelumnya dilock, maka akan memaba file log, lalu mencari proses yang memiliki nama user dan menggubahnya menjadi running
