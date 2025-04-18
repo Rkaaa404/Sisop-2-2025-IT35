@@ -134,6 +134,7 @@ void combine_files() {
       free(digits[dcounter]);
       dcounter++;
       state = 1;
+      remove(path);
     } else if (state == 1 && lcounter < lcount) {
       char path[1024];
       snprintf(path, sizeof(path), "./Filtered/%s", letters[lcounter]);
@@ -148,6 +149,7 @@ void combine_files() {
       free(letters[lcounter]);
       lcounter++;
       state = 0;
+      remove(path);
     }
   }
 
